@@ -4,7 +4,7 @@
 /** Ionic CSS Variables **/
 :root {
   /** primary **/
-  --ion-color-primary: #3880ff;
+  --ion-color-primary: #FF5A5F;
   --ion-color-primary-rgb: 56, 128, 255;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
@@ -74,4 +74,16 @@
   --ion-color-light-contrast-rgb: 0, 0, 0;
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
+
+  // below is how you pass a css variable into another css variable.
+  // css variables are like sass variables but less powerful
+  // below is an example code that can be used to make this work
+  // above comments are to be deleted commiting code to github 
+
+  // custom code
+  // keep in mind that styling code on component html can overide below root injected code. Gloab settings have the least priority
+  // enquire wheter I will be placed on company website or not. ALso speak to Phil regarding textile modile app for ionic
+  --ion-toolbar-background: var(--ion-color-primary);
+  --ion-toolbar-color: var(--ion-color-primary-contrast);
 }
+ 
