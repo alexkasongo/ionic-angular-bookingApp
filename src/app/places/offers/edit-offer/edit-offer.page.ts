@@ -14,6 +14,8 @@ import { Subscription } from 'rxjs';
 export class EditOfferPage implements OnInit, OnDestroy {
   place: Place;
   form: FormGroup;
+  placeId: string;
+  isLoading = false;
   private placeSub: Subscription;
 
   constructor(
@@ -30,20 +32,25 @@ export class EditOfferPage implements OnInit, OnDestroy {
         this.navCtrl.navigateBack('/places/tabs/offers');
         return;
       }
-      this.placeSub = this.placeService.getPlace(paramMap.get('placeId')).subscribe(place => {
-        this.place = place;
-        // form has to be in this code block as it is async.
-        // Initialise form control with values eg. this.place.tilte
-        this.form = new FormGroup({
-          title: new FormControl(this.place.title, {
-            updateOn: 'blur',
-            validators: [Validators.required]
+      this.placeId = paramMap.get('placeId');
+      this.isLoading = true;
+      this.placeSub = this.placeService
+        .getPlace(paramMap.get('placeId'))
+        .subscribe(place => {
+          this.place = place;
+          // form has to be in this code block as it is async.
+          // Initialise form control with values eg. this.place.tilte
+          this.form = new FormGroup({
+            title: new FormControl(this.place.title, {
+              updateOn: 'blur',
+              validators: [Validators.required]
           }),
           description: new FormControl(this.place.description, {
             updateOn: 'blur',
             validators: [Validators.required, Validators.maxLength(180)]
           })
         });
+          this.isLoading = false;
       });
     });
   }
@@ -53,7 +60,7 @@ export class EditOfferPage implements OnInit, OnDestroy {
       return;
     }
     this.loadingCtrl.create({
-      message: 'Upadating place...'
+      message: 'Updating place...'
     }).then(loadingEl => {
       loadingEl.present();
       // console.log(this.form);
@@ -66,7 +73,7 @@ export class EditOfferPage implements OnInit, OnDestroy {
         // once we are done updating
         loadingEl.dismiss();
         this.form.reset();
-        this.router.navigate(['/places/tabs/offers'])
+        this.router.navigate(['/places/tabs/offers']);
       });
     });
   }

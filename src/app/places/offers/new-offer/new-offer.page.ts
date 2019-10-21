@@ -61,7 +61,7 @@ export class NewOfferPage implements OnInit {
         new Date(this.form.value.dateTo)
       ).subscribe(() => {
         loadingEl.dismiss();
-        // only interested when this is fires, because that means it's done adding a place and then we can 
+        // only interested when this is fires, because that means it's done adding a place and then we can
         // reset and change routes
         // once we're done addind we reset the form
         this.form.reset();

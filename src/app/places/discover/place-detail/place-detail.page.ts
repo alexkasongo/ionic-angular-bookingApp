@@ -18,6 +18,7 @@ import { AuthService } from '../../../auth/auth.service';
 export class PlaceDetailPage implements OnInit, OnDestroy {
   place: Place;
   isBookable = false;
+  isLoading = false;
   private placeSub: Subscription;
 
   constructor(
@@ -39,12 +40,15 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         this.navCtrl.navigateBack('/places/tabs/discover');
         return;
       }
+      this.isLoading = true;
       // this.place = this.placeService.getPlace(paramMap.get('placeId'));
       this.placeSub = this.placeService
         .getPlace(paramMap.get('placeId'))
-        .subscribe(place => {
-          this.place = place;
-          this.isBookable = place.userId !== this.authService.userId;
+        .subscribe(
+          place => {
+            this.place = place;
+            this.isBookable = place.userId !== this.authService.userId;
+            this.isLoading = false;
         });
     });
   }

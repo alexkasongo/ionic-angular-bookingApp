@@ -13,21 +13,27 @@ import { Subscription } from 'rxjs';
 })
 export class OffersPage implements OnInit, OnDestroy {
   offers: Place[];
+  // simple spinner, not overlay
+  isLoading = false;
   private placesSub: Subscription;
 
-  constructor(private placesService: PlaceService, private router: Router) { }
+  constructor(private placeService: PlaceService, private router: Router) { }
 
   ngOnInit() {
     // before
-    // this.offers = this.placesService.places;
-    this.placesSub = this.placesService.places.subscribe(places =>{
+    // this.offers = this.placeService.places;
+    this.placesSub = this.placeService.places.subscribe(places => {
       // remember to clear subscription to avoid memory leaks
       this.offers = places;
     });
   }
 
   ionViewWillEnter() {
-    this.placesService.fetchplaces().subscribe();
+    this.isLoading = true;
+    // triggers fetchPlaces() method in PlaceService
+    this.placeService.fetchPlaces().subscribe(() => {
+      this.isLoading = false;
+    });
   }
 
   onEdit(offerId: string, slidingItem: IonItemSliding) {

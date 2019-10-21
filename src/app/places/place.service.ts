@@ -3,8 +3,18 @@ import { Place } from './place.model';
 import { AuthService } from '../auth/auth.service';
 import { take, map, tap, delay, switchMap } from 'rxjs/operators';
 // observable which allows for subscriptions: always gives the latest previously emmited values
-import { BehaviorSubject, from } from 'rxjs';
+import { BehaviorSubject, from, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+
+interface PlaceData {
+  availableFrom: string;
+  availableTo: string;
+  description: string;
+  imageUrl: string;
+  price: number;
+  title: string;
+  userId: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -12,40 +22,7 @@ import { HttpClient } from '@angular/common/http';
 export class PlaceService {
   // NOTE  <> descripes generic type and which type of data will eventually endup there
   // private placesModel: Place[] = new BehaviorSubject<Place[]>()  BEFORE / AFTER is below
-  private placesModel = new BehaviorSubject<Place[]>(
-    [
-      new Place(
-        'p1',
-        'Bell Crescent Mansion',
-        'In the heart of Cape Town',
-        'https://images.adsttc.com/media/images/5012/26dc/28ba/0d33/b200/019e/large_jpg/stringio.jpg?1414003370',
-        129.99,
-        new Date('2019-01-01'),
-        new Date('2019-12-31'),
-        'abc'
-      ),
-      new Place(
-        'p2',
-        'Newlands Heights',
-        'Honeymoon Chateau',
-        'https://www.votre-chateau-de-famille.com/wp-content/uploads/2019/05/BEAUMONT-.jpg',
-        189.99,
-        new Date('2019-01-01'),
-        new Date('2019-12-31'),
-        'abc'
-      ),
-      new Place(
-        'p3',
-        'Chandeleur Boulevard',
-        'Spa Resort',
-        'https://s7d2.scene7.com/is/image/ritzcarlton/RCPHUBY_00091?$XlargeViewport100pct$',
-        99.99,
-        new Date('2019-01-01'),
-        new Date('2019-12-31'),
-        'abc'
-      )
-    ]
-  );
+  private placesModel = new BehaviorSubject<Place[]>([]);
 
   get places() {
     // NOTE before observable
@@ -54,13 +31,36 @@ export class PlaceService {
     return this.placesModel.asObservable();
   }
 
-  fetchplaces() {
+  fetchPlaces() {
     // fetch data from backend
     return this.http
-      .get('https://ionic-angular-e6244.firebaseio.com/offer-places.json')
-      .pipe(tap(resData => {
-        console.log(resData);
-      }));
+      .get< {[key: string]: PlaceData} >('https://ionic-angular-e6244.firebaseio.com/offer-places.json')
+      // map() takes the response of the observable and allows us to return new data that will be wrapped in an observable
+      // switchMap returns a new observable, map returns non observable data
+      .pipe(map(resData => {
+        // trasform into array
+        const places = [];
+        for (const key in resData) {
+          if (resData.hasOwnProperty(key)) {
+            places.push(new Place(
+              key,
+              resData[key].title,
+              resData[key].description,
+              resData[key].imageUrl,
+              resData[key].price,
+              new Date(resData[key].availableFrom),
+              new Date(resData[key].availableTo),
+              resData[key].userId
+            ));
+          }
+        }
+        return places;
+        // return [];
+      }),
+      tap(places => {
+        this.placesModel.next(places);
+      })
+    );
   }
 
   constructor(
@@ -69,13 +69,25 @@ export class PlaceService {
   ) { }
 
   getPlace(id: string) {
+    // This is where we get a single place.
     // return subscribable subject, map(gets what take(gives us))
-    return this.places.pipe(
-      take(1),
-      map(places => {
-        return { ...places.find(p => p.id === id) };
-      })
-    );
+    return this.http
+      .get<PlaceData>(
+        `https://ionic-angular-e6244.firebaseio.com/offer-places/${id}.json`
+      ).pipe(
+        map(placeData => {
+          return new Place(
+            id,
+            placeData.title,
+            placeData.description,
+            placeData.imageUrl,
+            placeData.price,
+            new Date(placeData.availableFrom),
+            new Date(placeData.availableTo),
+            placeData.userId
+          );
+        })
+      );
   }
 
   // call method on new.offer coomponent when we submit everything
@@ -134,25 +146,40 @@ export class PlaceService {
   }
 
   updatePlace(placeId: string, title: string, description: string) {
+    let updatedPlaces: Place[];
     // NOTE take(1) is the latest snapshot of the data
     return this.places.pipe(
-      take(1),
-      delay(1000),
-      tap(places => {
-      const updatedPlaceIndex = places.findIndex(pl => pl.id === placeId);
-      const updatedPlaces = [...places];
-      const oldPlace = updatedPlaces[updatedPlaceIndex];
-      updatedPlaces[updatedPlaceIndex] = new Place(
-        oldPlace.id,
-        title,
-        description,
-        oldPlace.imageUrl,
-        oldPlace.price,
-        oldPlace.availableFrom,
-        oldPlace.availableTo,
-        oldPlace.userId
-      );
-      this.placesModel.next(updatedPlaces);
-    }));
+      take(1), switchMap(places => {
+        if (!places || places.length <= 0) {
+          return this.fetchPlaces();
+        } else {
+          // of(wrapps any value and returns an observable)
+          return of(places);
+        }
+      }),
+      switchMap(places => {
+        const updatedPlaceIndex = places.findIndex(pl => pl.id === placeId);
+        updatedPlaces = [...places];
+        const oldPlace = updatedPlaces[updatedPlaceIndex];
+        updatedPlaces[updatedPlaceIndex] = new Place(
+          oldPlace.id,
+          title,
+          description,
+          oldPlace.imageUrl,
+          oldPlace.price,
+          oldPlace.availableFrom,
+          oldPlace.availableTo,
+          oldPlace.userId
+        );
+        return this.http.put(`https://ionic-angular-e6244.firebaseio.com/offer-places/${placeId}.json`,
+        // copy the whole place and overide the iD
+        { ...updatedPlaces[updatedPlaceIndex], id: null }
+        );
+      }),
+      tap(resData => {
+        console.log('>>>Update response Data', resData);
+        this.placesModel.next(updatedPlaces);
+      })
+    );
   }
 }
