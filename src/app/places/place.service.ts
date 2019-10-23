@@ -5,6 +5,7 @@ import { take, map, tap, delay, switchMap } from 'rxjs/operators';
 // observable which allows for subscriptions: always gives the latest previously emmited values
 import { BehaviorSubject, from, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { PlaceLocation } from './location.model';
 
 interface PlaceData {
   availableFrom: string;
@@ -14,6 +15,7 @@ interface PlaceData {
   price: number;
   title: string;
   userId: string;
+  location: PlaceLocation;
 }
 
 @Injectable({
@@ -50,7 +52,8 @@ export class PlaceService {
               resData[key].price,
               new Date(resData[key].availableFrom),
               new Date(resData[key].availableTo),
-              resData[key].userId
+              resData[key].userId,
+              resData[key].location
             ));
           }
         }
@@ -84,7 +87,8 @@ export class PlaceService {
             placeData.price,
             new Date(placeData.availableFrom),
             new Date(placeData.availableTo),
-            placeData.userId
+            placeData.userId,
+            placeData.location
           );
         })
       );
@@ -96,7 +100,8 @@ export class PlaceService {
     description: string,
     price: number,
     dateFrom: Date,
-    dateTo: Date
+    dateTo: Date,
+    location: PlaceLocation
   ) {
     let generatedId: string;
     // Math.random().toString() used to generate random userId
@@ -107,7 +112,8 @@ export class PlaceService {
       price,
       dateFrom,
       dateTo,
-      this.authService.userId
+      this.authService.userId,
+      location
     );
     // for behaviorSubject use next() in place of push
     // this.placesModel.push(newPlace);
@@ -169,7 +175,8 @@ export class PlaceService {
           oldPlace.price,
           oldPlace.availableFrom,
           oldPlace.availableTo,
-          oldPlace.userId
+          oldPlace.userId,
+          oldPlace.location
         );
         return this.http.put(`https://ionic-angular-e6244.firebaseio.com/offer-places/${placeId}.json`,
         // copy the whole place and overide the iD

@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { PlaceDetailPage } from './place-detail.page';
 import { CreateBookingComponent } from '../../../bookings/create-booking/create-booking.component';
+import { SharedModule } from '../../../shared/shared.module';
 
 const routes: Routes = [
   {
@@ -20,7 +21,9 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    // unlocks map module component
+    SharedModule
   ],
   declarations: [PlaceDetailPage, CreateBookingComponent],
   // entryComponets lets angular know that this will be created programmatically and angular should be prepared to render 

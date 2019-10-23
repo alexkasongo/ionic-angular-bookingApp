@@ -3,6 +3,7 @@ import { FormGroup, FormControl, Validators, FormsModule } from '@angular/forms'
 import { PlaceService } from '../../place.service';
 import { Router } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
+import { PlaceLocation } from '../../location.model';
 
 @Component({
   selector: 'app-new-offer',
@@ -37,8 +38,16 @@ export class NewOfferPage implements OnInit {
       dateTo: new FormControl(null, {
         updateOn: 'blur',
         validators: [Validators.required]
-      })
+      }),
+      location: new FormControl(null, {
+        // updateOn: 'blur',
+        validators: [Validators.required]
+      }),
     });
+  }
+
+  onLocationPick(location: PlaceLocation) {
+    this.form.patchValue({ location: location });
   }
 
   onCreatedOffer() {
@@ -58,7 +67,8 @@ export class NewOfferPage implements OnInit {
         this.form.value.description,
         +this.form.value.price,
         new Date(this.form.value.dateFrom),
-        new Date(this.form.value.dateTo)
+        new Date(this.form.value.dateTo),
+        this.form.value.location
       ).subscribe(() => {
         loadingEl.dismiss();
         // only interested when this is fires, because that means it's done adding a place and then we can
