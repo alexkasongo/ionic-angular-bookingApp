@@ -40,14 +40,14 @@ const routes: Routes = [
             },
             {
                 path: '',
-                redirectTo: './places/tabs/rediscover',
+                redirectTo: '/places/tabs/rediscover',
                 pathMatch: 'full'
             }
         ]
     },
     {
         path: '',
-        redirectTo: './places/tabs/discover',
+        redirectTo: '/places/tabs/discover',
         pathMatch: 'full'
     }
 ];
