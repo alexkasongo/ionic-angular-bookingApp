@@ -70,6 +70,14 @@
           <app-location-pickers (locationPick)="onLocationPick($event)"> </app-location-pickers>
         </ion-col>
       </ion-row>
+       
+      <ion-row>
+        <ion-col size-sm="3" offset-sm="3">
+          <app-image-picker
+            (imagePick)="onImagePicked($event)"
+          ></app-image-picker>
+        </ion-col>
+      </ion-row>
 
     </ion-grid>
   </form>
