@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, Input } from '@angular/core';
 import { ModalController, ActionSheetController, AlertController } from '@ionic/angular';
 import { MapModalComponent } from '../../map-modal/map-modal.component';
 import { HttpClient } from '@angular/common/http';
@@ -17,6 +17,8 @@ import { of } from 'rxjs';
 export class LocationPickersComponent implements OnInit {
   // @Output makes it listenable from outside, EventEmitter is a generic type, will eventually emmit PlaceLocation
   @Output() locationPick = new EventEmitter<PlaceLocation>();
+  // clear after submission
+  @Input() showPreview = false;
   selectedLocationImage: string;
   isLoading = false;
 

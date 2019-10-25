@@ -1,10 +1,11 @@
 .picker {
     width: 30rem;
-    max-width: 80%;
+    max-width: 95%;
     height: 20rem;
     max-height: 30vh;
-    border: 1px so lid var(--ion-color-primary);
-    margin: 10% auto;
+    // border: 1px solid var(--ion-color-primary);
+    box-shadow: 0px 3px 10px 1px rgba(0,0,0,0.1);
+    margin: auto;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,6 +17,7 @@
     object-fit: cover;
 }
 
-input[type="file"] {
+input[type='file'] {
     display: none;
-}
+  }
+   

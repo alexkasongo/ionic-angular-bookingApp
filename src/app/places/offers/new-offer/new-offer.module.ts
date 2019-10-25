@@ -9,7 +9,7 @@ import { NewOfferPage } from './new-offer.page';
 import { SharedModule } from '../../../shared/shared.module';
 
 const routes: Routes = [
-  { 
+  {
     path: '',
     component: NewOfferPage
   }

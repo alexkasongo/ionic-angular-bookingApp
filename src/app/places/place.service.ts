@@ -94,6 +94,17 @@ export class PlaceService {
       );
   }
 
+  uploadImage(image: File) {
+    // send http request here to our rest api
+    const uploadData = new FormData();
+    uploadData.append('image', image);
+
+    return this.http.post<{imageUrl: string, imagePath: string }>(
+      'https://us-central1-ionic-angular-e6244.cloudfunctions.net/storeImage',
+      uploadData
+    );
+  }
+
   // call method on new.offer coomponent when we submit everything
   addPlace(
     title: string,
@@ -101,14 +112,15 @@ export class PlaceService {
     price: number,
     dateFrom: Date,
     dateTo: Date,
-    location: PlaceLocation
+    location: PlaceLocation,
+    imageUrl: string
   ) {
     let generatedId: string;
     // Math.random().toString() used to generate random userId
     const newPlace = new Place(
       Math.random.toString(),
       title, description,
-      'https://listing.pamgolding.co.za/images/properties/201902/334012/H/334012_H_77.jpg',
+      imageUrl,
       price,
       dateFrom,
       dateTo,
