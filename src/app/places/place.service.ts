@@ -116,32 +116,36 @@ export class PlaceService {
     imageUrl: string
   ) {
     let generatedId: string;
+    let newPlace: Place;
     // Math.random().toString() used to generate random userId
-    const newPlace = new Place(
-      Math.random.toString(),
-      title, description,
-      imageUrl,
-      price,
-      dateFrom,
-      dateTo,
-      this.authService.userId,
-      location
-    );
-    // for behaviorSubject use next() in place of push
-    // this.placesModel.push(newPlace);
-    // operators allow us to perform operations on the observable
-    // take(1) only take the current lates list of places and do not listen to any future places
-    // concat takes old value and adds new value and returns new array
-
-    // NOTE return is used here so that we can create a loader inside the new.offer component
-    // tap operator allows us to execute some action that will not change the data in this observable chain
-    // and it will also not complete the observable. And now we return the full observable here
-    return this.http
-      .post<{ name: string }>('https://ionic-angular-e6244.firebaseio.com/offer-places.json', {
-        ...newPlace,
-        id: null
-      })
-      .pipe(
+    return this.authService.userId.pipe(take(1), switchMap(userId => {
+      if (!userId) {
+        throw new Error('No user found!');
+      }
+      newPlace = new Place(
+        Math.random.toString(),
+        title, description,
+        imageUrl,
+        price,
+        dateFrom,
+        dateTo,
+        userId,
+        location
+      );
+      // for behaviorSubject use next() in place of push
+      // this.placesModel.push(newPlace);
+      // operators allow us to perform operations on the observable
+      // take(1) only take the current lates list of places and do not listen to any future places
+      // concat takes old value and adds new value and returns new array
+      // NOTE return is used here so that we can create a loader inside the new.offer component
+      // tap operator allows us to execute some action that will not change the data in this observable chain
+      // and it will also not complete the observable. And now we return the full observable here
+      return this.http
+        .post<{ name: string }>('https://ionic-angular-e6244.firebaseio.com/offer-places.json', {
+          ...newPlace,
+          id: null
+        });
+    }),
         // takes exissting observable resultsand returns new ibservable that replaces old observable in upcoming steps of chain
         switchMap(resData => {
           generatedId = resData.name;
