@@ -13,4 +13,14 @@
           }
           return this.fireToken;
       }
+
+      get tokenDuration() {
+        // if we don't have a token
+        if (!this.token) {
+          return 0;
+        }
+        // return 2000;
+        // difference in miliseconds between token time and current time
+        return this.tokenExpirationDate.getTime() - new Date().getTime();
+      }
  }

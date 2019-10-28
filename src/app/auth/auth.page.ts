@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService, AuthResponseDate } from './auth.service';
+import { AuthService, AuthResponseData } from './auth.service';
 import { Router } from '@angular/router';
 import { LoadingController, AlertController } from '@ionic/angular';
 import { NgForm } from '@angular/forms';
@@ -29,9 +29,9 @@ export class AuthPage implements OnInit {
     this.loadingCtrl.create({keyboardClose: true, message: 'Logging in...'})
     .then(loadingEl => {
       loadingEl.present();
-      let authObs: Observable<AuthResponseDate>;
+      let authObs: Observable<AuthResponseData>;
       if (this.isLogin) {
-        authObs = this.authService.onLogin(email, password);
+        authObs = this.authService.login(email, password);
       } else {
         authObs = this.authService.signup(email, password);
       }
@@ -42,6 +42,7 @@ export class AuthPage implements OnInit {
         this.router.navigateByUrl('/places/tabs/discover');
       },
       errorRes => {
+        console.log('>>>ERROR>>>', errorRes);
         loadingEl.dismiss();
         const code = errorRes.error.error.message;
         // console.log('>>>', errorRes);
@@ -55,7 +56,7 @@ export class AuthPage implements OnInit {
         }
         this.showAlert(message);
       });
-    }); 
+    });
   }
 
   onSwitchAuthMode() {
@@ -70,6 +71,7 @@ export class AuthPage implements OnInit {
     const email = form.value.email;
     const password = form.value.password;
     this.authenticate(email, password);
+    form.reset();
   }
 
   private showAlert(message: string) {
